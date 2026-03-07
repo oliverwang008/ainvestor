@@ -29,30 +29,35 @@ export default function HomePage() {
   }
 
   return (
-    <main className="min-h-screen bg-gray-50 text-black">
-      <div className="mx-auto max-w-7xl px-4 py-10 md:px-8">
-        <div className="mb-8">
-          <h1 className="text-4xl font-bold tracking-tight">AInvestor</h1>
-          <p className="mt-3 max-w-2xl text-gray-600">
-            AI-powered stock recommendations using live backend data.
+    <main className="min-h-screen bg-slate-50 text-slate-900">
+      <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
+        <header className="mb-10">
+          <h1 className="text-4xl font-bold tracking-tight text-slate-900 sm:text-5xl">
+            AInvestor
+          </h1>
+          <p className="mt-3 max-w-2xl text-lg text-slate-600">
+            AI-powered stock recommendations using live market data.
           </p>
-        </div>
+        </header>
 
-        <div className="grid gap-6 lg:grid-cols-[380px_1fr]">
-          <div className="space-y-4">
+        <div className="grid gap-8 lg:grid-cols-[400px_1fr]">
+          <aside className="space-y-5">
             <RecommendationForm
               onSubmit={handleGetRecommendations}
               loading={loading}
             />
 
             {error && (
-              <div className="rounded-2xl border border-red-200 bg-red-50 p-4 text-red-700">
+              <div
+                className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700 shadow-sm"
+                role="alert"
+              >
                 {error}
               </div>
             )}
-          </div>
+          </aside>
 
-          <div className="space-y-6">
+          <div className="space-y-8">
             <MarketSummary summary={data?.market_summary} />
             <PicksGrid picks={data?.picks} />
             <ProviderErrors errors={data?.errors} />
