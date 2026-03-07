@@ -7,8 +7,7 @@ FROM node:20-alpine AS builder
 WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
-ARG NEXT_PUBLIC_API_BASE
-ENV NEXT_PUBLIC_API_BASE=$NEXT_PUBLIC_API_BASE
+ENV NEXT_PUBLIC_API_BASE=https://ainvestor-backend-992434720520.us-central1.run.app
 RUN npm run build
 
 FROM node:20-alpine AS runner
