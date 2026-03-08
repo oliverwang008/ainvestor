@@ -1,30 +1,26 @@
 interface MarketSummaryProps {
-  summary?: string;
+  summary: string;
 }
 
 export default function MarketSummary({ summary }: MarketSummaryProps) {
-  const isEmpty = !summary?.trim();
-
   return (
     <section
-      className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm ring-1 ring-slate-900/5"
+      className="rounded-2xl border border-[#14304f] bg-[#071525] overflow-hidden"
       aria-labelledby="market-summary-heading"
     >
-      <h2
-        id="market-summary-heading"
-        className="text-lg font-semibold text-slate-900 mb-4"
-      >
-        Market summary
-      </h2>
-      {isEmpty ? (
-        <p className="text-slate-500 text-sm leading-relaxed">
-          Run a query to see an AI-generated market summary.
-        </p>
-      ) : (
-        <p className="text-slate-700 leading-relaxed whitespace-pre-wrap">
-          {summary}
-        </p>
-      )}
+      <div className="flex items-center gap-3 px-5 py-3.5 border-b border-[#14304f]">
+        <span className="size-1.5 rounded-full bg-[#00c896]" />
+        <h2
+          id="market-summary-heading"
+          className="font-display text-xs font-700 tracking-[0.15em] uppercase text-slate-400"
+          style={{ fontFamily: "var(--font-barlow)", fontWeight: 700 }}
+        >
+          Market Summary
+        </h2>
+      </div>
+      <div className="px-5 py-4">
+        <p className="text-sm text-[#8fb3cc] leading-relaxed">{summary}</p>
+      </div>
     </section>
   );
 }

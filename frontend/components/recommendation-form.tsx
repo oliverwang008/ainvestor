@@ -8,10 +8,7 @@ interface RecommendationFormProps {
   loading: boolean;
 }
 
-export default function RecommendationForm({
-  onSubmit,
-  loading,
-}: RecommendationFormProps) {
+export default function RecommendationForm({ onSubmit, loading }: RecommendationFormProps) {
   const [query, setQuery] = useState("");
   const [suggestions, setSuggestions] = useState<Stock[]>([]);
   const [highlightedIndex, setHighlightedIndex] = useState(-1);
@@ -28,14 +25,11 @@ export default function RecommendationForm({
     setHighlightedIndex(-1);
   }, [query]);
 
-  // Close dropdown on outside click
   useEffect(() => {
     function handleClick(e: MouseEvent) {
       if (
-        dropdownRef.current &&
-        !dropdownRef.current.contains(e.target as Node) &&
-        inputRef.current &&
-        !inputRef.current.contains(e.target as Node)
+        dropdownRef.current && !dropdownRef.current.contains(e.target as Node) &&
+        inputRef.current && !inputRef.current.contains(e.target as Node)
       ) {
         setSuggestions([]);
       }
@@ -44,64 +38,68 @@ export default function RecommendationForm({
     return () => document.removeEventListener("mousedown", handleClick);
   }, []);
 
-  const addSymbol = useCallback(
-    (stock: Stock) => {
-      if (!selected.find((s) => s.ticker === stock.ticker)) {
-        setSelected((prev) => [...prev, stock]);
-      }
-      setQuery("");
-      setSuggestions([]);
-      inputRef.current?.focus();
-    },
-    [selected]
-  );
+  const addSymbol = useCallback((stock: Stock) => {
+    if (!selected.find((s) => s.ticker === stock.ticker)) {
+      setSelected((prev) => [...prev, stock]);
+    }
+    setQuery("");
+    setSuggestions([]);
+    inputRef.current?.focus();
+  }, [selected]);
 
   const removeSymbol = useCallback((ticker: string) => {
     setSelected((prev) => prev.filter((s) => s.ticker !== ticker));
   }, []);
 
   function handleKeyDown(e: React.KeyboardEvent<HTMLInputElement>) {
-    if (suggestions.length === 0) return;
-    if (e.key === "ArrowDown") {
-      e.preventDefault();
-      setHighlightedIndex((i) => Math.min(i + 1, suggestions.length - 1));
-    } else if (e.key === "ArrowUp") {
-      e.preventDefault();
-      setHighlightedIndex((i) => Math.max(i - 1, 0));
-    } else if (e.key === "Enter") {
+    if (!suggestions.length) return;
+    if (e.key === "ArrowDown") { e.preventDefault(); setHighlightedIndex((i) => Math.min(i + 1, suggestions.length - 1)); }
+    else if (e.key === "ArrowUp") { e.preventDefault(); setHighlightedIndex((i) => Math.max(i - 1, 0)); }
+    else if (e.key === "Enter") {
       e.preventDefault();
       const target = highlightedIndex >= 0 ? suggestions[highlightedIndex] : suggestions[0];
       if (target) addSymbol(target);
-    } else if (e.key === "Escape") {
-      setSuggestions([]);
-    }
+    } else if (e.key === "Escape") setSuggestions([]);
   }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (selected.length === 0) return;
+    if (!selected.length) return;
     await onSubmit(selected.map((s) => s.ticker), effectiveK);
   }
 
   return (
     <form
       onSubmit={handleSubmit}
-      className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm ring-1 ring-slate-900/5"
+      className="rounded-2xl border border-[#14304f] bg-[#071525] overflow-hidden"
     >
-      <h2 className="text-lg font-semibold text-slate-900 mb-5">
-        Get recommendations
-      </h2>
+      {/* Form header */}
+      <div className="px-5 py-4 border-b border-[#14304f] flex items-center justify-between">
+        <h2
+          className="font-display text-sm font-700 tracking-[0.12em] uppercase text-slate-300"
+          style={{ fontFamily: "var(--font-barlow)", fontWeight: 700 }}
+        >
+          Stock Universe
+        </h2>
+        {selected.length > 0 && (
+          <span className="font-mono text-xs text-[#00c896]">
+            {selected.length} selected
+          </span>
+        )}
+      </div>
 
-      <div className="space-y-5">
-        {/* Symbol search input */}
+      <div className="p-5 space-y-5">
+        {/* Search input */}
         <div>
-          <label
-            htmlFor="symbol-search"
-            className="block text-sm font-medium text-slate-700 mb-1.5"
-          >
-            Add stocks to universe
+          <label htmlFor="symbol-search" className="block text-xs font-mono tracking-widest uppercase text-[#2d5070] mb-2">
+            Search Ticker / Company
           </label>
           <div className="relative">
+            <div className="pointer-events-none absolute inset-y-0 left-3 flex items-center">
+              <svg className="size-3.5 text-[#2d5070]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
+              </svg>
+            </div>
             <input
               ref={inputRef}
               id="symbol-search"
@@ -110,16 +108,17 @@ export default function RecommendationForm({
               onChange={(e) => setQuery(e.target.value)}
               onKeyDown={handleKeyDown}
               onFocus={() => query && setSuggestions(searchStocks(query))}
-              placeholder="Search ticker or company name…"
+              placeholder="AAPL, Tesla, Nvidia…"
               autoComplete="off"
-              className="w-full rounded-lg border border-slate-300 bg-white px-3.5 py-2.5 text-slate-900 placeholder:text-slate-400 transition-colors focus:border-teal-500 focus:outline-none focus:ring-2 focus:ring-teal-500/20"
+              className="w-full rounded-lg border border-[#14304f] bg-[#0a1e32] pl-9 pr-3.5 py-2.5 text-sm text-slate-200 placeholder:text-[#2d5070] font-mono tracking-wide focus:border-[#00c896] focus:outline-none focus:ring-1 focus:ring-[#00c896]/30 transition-colors"
             />
 
             {/* Dropdown */}
             {suggestions.length > 0 && (
               <div
                 ref={dropdownRef}
-                className="absolute z-10 mt-1 w-full rounded-lg border border-slate-200 bg-white shadow-lg overflow-hidden"
+                className="absolute z-20 mt-1 w-full rounded-xl border border-[#14304f] bg-[#0a1e32] shadow-2xl overflow-hidden"
+                style={{ boxShadow: "0 8px 32px rgba(0,0,0,0.6)" }}
               >
                 {suggestions.map((stock, i) => {
                   const alreadyAdded = selected.some((s) => s.ticker === stock.ticker);
@@ -127,24 +126,19 @@ export default function RecommendationForm({
                     <button
                       key={stock.ticker}
                       type="button"
-                      onMouseDown={(e) => {
-                        e.preventDefault();
-                        addSymbol(stock);
-                      }}
-                      className={`flex w-full items-center justify-between px-3.5 py-2.5 text-left text-sm transition-colors ${
-                        i === highlightedIndex
-                          ? "bg-teal-50"
-                          : "hover:bg-slate-50"
+                      onMouseDown={(e) => { e.preventDefault(); addSymbol(stock); }}
+                      className={`flex w-full items-center justify-between px-4 py-2.5 text-left text-sm transition-colors border-b border-[#14304f] last:border-0 ${
+                        i === highlightedIndex ? "bg-[#00c896]/10" : "hover:bg-[#0f2540]"
                       } ${alreadyAdded ? "opacity-40 cursor-default" : ""}`}
                     >
-                      <span className="flex items-center gap-3">
-                        <span className="font-semibold text-slate-900 w-16 shrink-0">
+                      <span className="flex items-center gap-3 min-w-0">
+                        <span className="font-mono text-xs font-semibold text-[#00c896] w-14 shrink-0 tracking-wider">
                           {stock.ticker}
                         </span>
-                        <span className="text-slate-500 truncate">{stock.name}</span>
+                        <span className="text-xs text-[#5d8aaa] truncate">{stock.name}</span>
                       </span>
                       {alreadyAdded && (
-                        <span className="text-xs text-slate-400 ml-2 shrink-0">added</span>
+                        <span className="text-xs text-[#2d5070] ml-2 shrink-0 font-mono">added</span>
                       )}
                     </button>
                   );
@@ -154,29 +148,31 @@ export default function RecommendationForm({
           </div>
         </div>
 
-        {/* Selected symbols list */}
+        {/* Selected list */}
         {selected.length > 0 && (
           <div>
-            <p className="text-sm font-medium text-slate-700 mb-2">
-              Universe ({selected.length} stock{selected.length !== 1 ? "s" : ""})
+            <p className="text-xs font-mono tracking-widest uppercase text-[#2d5070] mb-2">
+              Universe — {selected.length} ticker{selected.length !== 1 ? "s" : ""}
             </p>
-            <ul className="space-y-1.5">
+            <ul className="space-y-1.5 max-h-52 overflow-y-auto pr-0.5">
               {selected.map((stock) => (
                 <li
                   key={stock.ticker}
-                  className="flex items-center justify-between rounded-lg border border-slate-200 bg-slate-50 px-3 py-2"
+                  className="flex items-center justify-between rounded-lg border border-[#14304f] bg-[#0a1e32] px-3 py-2 group"
                 >
-                  <span className="flex items-center gap-2.5">
-                    <span className="text-sm font-semibold text-slate-900">{stock.ticker}</span>
-                    <span className="text-xs text-slate-500 truncate">{stock.name}</span>
+                  <span className="flex items-center gap-2.5 min-w-0">
+                    <span className="font-mono text-xs font-semibold text-[#00c896] tracking-wider w-14 shrink-0">
+                      {stock.ticker}
+                    </span>
+                    <span className="text-xs text-[#5d8aaa] truncate">{stock.name}</span>
                   </span>
                   <button
                     type="button"
                     onClick={() => removeSymbol(stock.ticker)}
                     aria-label={`Remove ${stock.ticker}`}
-                    className="ml-2 shrink-0 rounded p-0.5 text-slate-400 hover:bg-slate-200 hover:text-slate-600 transition-colors"
+                    className="ml-2 shrink-0 rounded p-0.5 text-[#2d5070] hover:text-red-400 transition-colors opacity-0 group-hover:opacity-100"
                   >
-                    <svg xmlns="http://www.w3.org/2000/svg" className="size-4" viewBox="0 0 20 20" fill="currentColor">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="size-3.5" viewBox="0 0 20 20" fill="currentColor">
                       <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
                     </svg>
                   </button>
@@ -188,47 +184,53 @@ export default function RecommendationForm({
 
         {/* Number of picks */}
         <div>
-          <label
-            htmlFor="k"
-            className="block text-sm font-medium text-slate-700 mb-1.5"
-          >
-            Number of picks
+          <label htmlFor="k" className="block text-xs font-mono tracking-widest uppercase text-[#2d5070] mb-2">
+            Picks to Return
           </label>
-          <input
-            id="k"
-            type="number"
-            min={1}
-            max={maxK || 5}
-            value={effectiveK}
-            onChange={(e) => setK(Number(e.target.value) || 1)}
-            disabled={selected.length === 0}
-            className="w-full rounded-lg border border-slate-300 bg-white px-3.5 py-2.5 text-slate-900 transition-colors focus:border-teal-500 focus:outline-none focus:ring-2 focus:ring-teal-500/20 disabled:opacity-50"
-          />
-          {selected.length > 0 && (
-            <p className="mt-1.5 text-xs text-slate-500">
-              Max {maxK} (limited to 5 or your universe size)
-            </p>
-          )}
+          <div className="relative">
+            <select
+              id="k"
+              value={effectiveK}
+              onChange={(e) => setK(Number(e.target.value))}
+              disabled={!selected.length}
+              className="w-full appearance-none rounded-lg border border-[#14304f] bg-[#0a1e32] px-3.5 py-2.5 pr-9 text-sm font-mono text-slate-200 focus:border-[#00c896] focus:outline-none focus:ring-1 focus:ring-[#00c896]/30 transition-colors disabled:cursor-not-allowed disabled:opacity-40"
+            >
+              {!selected.length ? (
+                <option value={1}>— add stocks first —</option>
+              ) : (
+                Array.from({ length: maxK }, (_, i) => i + 1).map((n) => (
+                  <option key={n} value={n}>{n} pick{n !== 1 ? "s" : ""}</option>
+                ))
+              )}
+            </select>
+            <div className="pointer-events-none absolute inset-y-0 right-3 flex items-center text-[#2d5070]">
+              <svg xmlns="http://www.w3.org/2000/svg" className="size-4" viewBox="0 0 20 20" fill="currentColor">
+                <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
+              </svg>
+            </div>
+          </div>
         </div>
 
+        {/* Submit */}
         <button
           type="submit"
-          disabled={loading || selected.length === 0 || effectiveK < 1}
-          className="w-full rounded-lg bg-teal-600 px-4 py-3 text-sm font-medium text-white shadow-sm transition-colors hover:bg-teal-700 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-teal-600"
+          disabled={loading || !selected.length || effectiveK < 1}
+          className="w-full rounded-lg border border-[#00c896]/50 bg-[#00c896]/10 px-4 py-3 text-sm font-display font-700 tracking-[0.1em] uppercase text-[#00c896] transition-all hover:bg-[#00c896]/20 hover:border-[#00c896] disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:bg-[#00c896]/10"
+          style={{ fontFamily: "var(--font-barlow)", fontWeight: 700 }}
         >
           {loading ? (
-            <span className="inline-flex items-center gap-2">
-              <span className="size-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
-              Getting recommendations…
+            <span className="inline-flex items-center gap-2.5">
+              <span className="size-3.5 animate-spin rounded-full border-2 border-[#00c896]/30 border-t-[#00c896]" />
+              Analysing…
             </span>
           ) : (
-            "Get recommended shares"
+            "Run Analysis →"
           )}
         </button>
 
-        {selected.length === 0 && (
-          <p className="text-sm text-slate-500 text-center">
-            Search and add at least one stock to get started.
+        {!selected.length && (
+          <p className="text-xs text-[#2d5070] text-center font-mono">
+            Search and add at least one ticker to begin.
           </p>
         )}
       </div>

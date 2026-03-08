@@ -1,37 +1,103 @@
 @import "tailwindcss";
 
 :root {
-  --background: #f8fafc;
-  --foreground: #0f172a;
-  --card: #ffffff;
-  --card-border: #e2e8f0;
-  --muted: #64748b;
-  --accent: #0d9488;
-  --accent-hover: #0f766e;
-  --accent-muted: #ccfbf1;
-  --error-bg: #fef2f2;
-  --error-border: #fecaca;
-  --error-text: #b91c1c;
-  --warning-bg: #fffbeb;
-  --warning-border: #fde68a;
+  /* Finance Terminal palette */
+  --bg-base:     #030c18;
+  --bg-surface:  #071525;
+  --bg-card:     #0a1e32;
+  --bg-elevated: #0f2540;
+  --border:      #14304f;
+  --border-bright: #1e4d7a;
+  --green:       #00c896;
+  --green-dim:   #00422f;
+  --green-glow:  rgba(0, 200, 150, 0.12);
+  --amber:       #f59e0b;
+  --red:         #ef4444;
+  --text:        #c8e0f4;
+  --text-sec:    #5d8aaa;
+  --text-muted:  #2d5070;
+
+  /* Legacy light vars kept for any un-migrated code */
+  --background: var(--bg-base);
+  --foreground: var(--text);
+  --accent: var(--green);
+  --accent-hover: #00a87e;
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
+  --color-background: var(--bg-base);
+  --color-foreground: var(--text);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+  --font-display: var(--font-barlow);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
+  background: var(--bg-base);
+  color: var(--text);
   font-family: var(--font-geist-sans), system-ui, sans-serif;
 }
 
-/* Focus ring for accessibility */
+/* Scrollbar */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: var(--bg-surface); }
+::-webkit-scrollbar-thumb { background: var(--border-bright); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--green-dim); }
+
+/* Focus */
 input:focus-visible,
-button:focus-visible {
-  outline: 2px solid var(--accent);
+button:focus-visible,
+select:focus-visible {
+  outline: 1.5px solid var(--green);
   outline-offset: 2px;
+}
+
+/* Ticker monospace */
+.font-ticker {
+  font-family: var(--font-geist-mono), "Courier New", monospace;
+  letter-spacing: 0.04em;
+}
+
+/* Hero grid overlay */
+.hero-grid {
+  background-image:
+    linear-gradient(rgba(0, 200, 150, 0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 200, 150, 0.04) 1px, transparent 1px);
+  background-size: 48px 48px;
+}
+
+/* Pulsing live indicator */
+@keyframes live-pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50%       { opacity: 0.4; transform: scale(0.85); }
+}
+.live-dot {
+  animation: live-pulse 2s ease-in-out infinite;
+}
+
+/* Animate in cards on data load */
+@keyframes fade-up {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.animate-fade-up {
+  animation: fade-up 0.35s ease both;
+}
+
+/* Green text glow for tickers */
+.ticker-glow {
+  text-shadow: 0 0 20px rgba(0, 200, 150, 0.35);
+}
+
+/* Barlow display font utility */
+.font-display {
+  font-family: var(--font-barlow), "Arial Narrow", sans-serif;
 }
